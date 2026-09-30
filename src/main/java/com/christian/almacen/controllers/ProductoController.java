@@ -1,10 +1,13 @@
 package com.christian.almacen.controllers;
 
+import com.christian.almacen.docs.ProblemaDoc;
 import com.christian.almacen.dto.productos.ProductoRequest;
 import com.christian.almacen.dto.productos.ProductoResponse;
 import com.christian.almacen.services.productos.ProductoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,6 +24,13 @@ import java.util.List;
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
 @Tag(name = "Productos", description = "Gestión del inventario de productos")
+// Errores que pueden ocurrir en cualquier endpoint:
+@ApiResponse(responseCode = "400", description = "Datos o parámetros inválidos",
+        content = @Content(mediaType = "application/problem+json",
+                schema = @Schema(implementation = ProblemaDoc.class)))
+@ApiResponse(responseCode = "500", description = "Error interno del servidor",
+        content = @Content(mediaType = "application/problem+json",
+                schema = @Schema(implementation = ProblemaDoc.class)))
 public class ProductoController {
 
     private final ProductoService productoService;
@@ -48,7 +58,9 @@ public class ProductoController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener producto por ID")
     @ApiResponse(responseCode = "200", description = "Producto encontrado")
-    @ApiResponse(responseCode = "404", description = "El producto no existe")
+    @ApiResponse(responseCode = "404", description = "El producto no existe",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemaDoc.class)))
     public ResponseEntity<ProductoResponse> obtenerPorId(
 
             @Parameter(description = "Id del producto", example = "1")
@@ -60,7 +72,9 @@ public class ProductoController {
     @PostMapping
     @Operation(summary = "Registrar un nuevo producto")
     @ApiResponse(responseCode = "201", description = "Producto creado")
-    @ApiResponse(responseCode = "409", description = "Conflicto con datos del producto")
+    @ApiResponse(responseCode = "409", description = "Conflicto con datos del producto",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemaDoc.class)))
     public ResponseEntity<ProductoResponse> registrar(
             @Valid @RequestBody ProductoRequest request
     ) {
@@ -71,8 +85,12 @@ public class ProductoController {
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar un producto existente")
     @ApiResponse(responseCode = "200", description = "Producto actualizado")
-    @ApiResponse(responseCode = "404", description = "El producto no existe")
-    @ApiResponse(responseCode = "409", description = "Conflicto con nuevos datos del producto")
+    @ApiResponse(responseCode = "404", description = "El producto no existe",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "Conflicto con nuevos datos del producto",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemaDoc.class)))
     public ResponseEntity<ProductoResponse> actualizar(
 
             @Parameter(description = "Id del producto", example = "1")
@@ -86,8 +104,12 @@ public class ProductoController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un producto")
     @ApiResponse(responseCode = "204", description = "Producto eliminado")
-    @ApiResponse(responseCode = "404", description = "El producto no existe")
-    @ApiResponse(responseCode = "409", description = "El producto está en uso y no puede eliminarse")
+    @ApiResponse(responseCode = "404", description = "El producto no existe",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemaDoc.class)))
+    @ApiResponse(responseCode = "409", description = "El producto está en uso y no puede eliminarse",
+            content = @Content(mediaType = "application/problem+json",
+                    schema = @Schema(implementation = ProblemaDoc.class)))
     public ResponseEntity<Void> eliminar(
 
             @Parameter(description = "Id del producto", example = "1")
