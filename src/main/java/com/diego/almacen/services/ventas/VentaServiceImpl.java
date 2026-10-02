@@ -17,8 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -35,7 +33,7 @@ public class VentaServiceImpl implements VentaService {
     public List<VentaResponse> listadoDinamico(String description) {
         log.info("Obteniendo Lista de ventas...");
 
-        EstadoVenta estadoVenta = (description == null || description.isBlank())
+        EstadoVenta estadoVenta = description == null
                 ? EstadoVenta.REGISTRADA
                 : EstadoVenta.obtenerEstadoVentaPorDescripcion(description);
 
@@ -57,38 +55,18 @@ public class VentaServiceImpl implements VentaService {
         return ventaMapper.entidadAResponse(venta);
     }
 
+
     @Override
     public VentaResponse registrar(VentaRequest request) {
         log.info("Registrando venta...");
 
-        Sucursal sucursal = sucursalRepository.findById(request.idSucursal())
-                .orElseThrow(() ->
-                        new RecursoNoEncontradoException("Sucursal no encontrada con id: " + request.idSucursal()));
+        Sucursal sucursal = obtenerSucursalOException(request.idSucursal());
 
-        Venta venta = Venta.builder()
-                .estadoVenta(EstadoVenta.REGISTRADA)
-                .fecha(LocalDate.now())
-                .sucursal(sucursal)
-                .build();
+        Venta venta = Venta.crearVenta(sucursal);
 
-        request.productos().forEach(detalleVentaRequest -> {
-            Producto producto = productoRepository.findById(detalleVentaRequest.idProducto())
-                    .orElseThrow(() ->
-                            new RecursoNoEncontradoException("Producto no encontrado con id: " + detalleVentaRequest.idProducto())
-                    );
-
-            BigDecimal precioActual = producto.getPrecio();
-
-            producto.descontarCantidad(
-                    detalleVentaRequest.cantidadProducto()
-            );
-
-            DetalleVenta detalleVenta = DetalleVenta.builder()
-                    .producto(producto)
-                    .cantidadProducto(detalleVentaRequest.cantidadProducto())
-                    .precioProducto(precioActual)
-                    .build();
-
+        request.productos().forEach(detalleProducto -> {
+            Producto producto = obtenerProductoOException(detalleProducto.idProducto());
+            DetalleVenta detalleVenta = DetalleVenta.crearVenta(producto, detalleProducto.cantidadProducto());
             venta.agregarDetalle(detalleVenta);
         });
 
@@ -100,21 +78,38 @@ public class VentaServiceImpl implements VentaService {
     @Override
     public VentaResponse cancelar(Long id) {
         log.info("Cancelando venta...");
-        Venta venta = ventaRepository.findById(id)
-                .orElseThrow(() ->
-                        new RecursoNoEncontradoException("Venta no encontrada con id: " + id));
+
+        Venta venta = obtenerVentaOException(id);
 
         venta.cancelar();
-
-        venta.getDetalleVentas()
-                .forEach(detalleVenta ->
-                        detalleVenta.getProducto().aumentarCantidad(detalleVenta.getCantidadProducto()));
-
-        ventaRepository.save(venta);
 
         log.info("Venta Cancelada con éxito");
 
         return ventaMapper.entidadAResponse(venta);
     }
 
+
+    private Sucursal obtenerSucursalOException(Long id) {
+
+        log.info("Buscando sucursal con id: {}", id);
+
+        return sucursalRepository.findById(id).orElseThrow(
+                () -> new RecursoNoEncontradoException(
+                        "Sucursal no encontrada con id: " + id));
+    }
+
+    private Producto obtenerProductoOException(Long id) {
+
+        log.info("Buscando producto con id {}", id);
+
+        return productoRepository.findById(id).orElseThrow(
+                () -> new RecursoNoEncontradoException(
+                        "Producto no encontrado con id: " + id));
+    }
+
+    private Venta obtenerVentaOException(Long id) {
+        log.info("Obteniendo venta por id: {}", id);
+        return ventaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Venta no encontrada con id: " + id));
+    }
 }

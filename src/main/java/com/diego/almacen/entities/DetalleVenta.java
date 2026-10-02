@@ -1,6 +1,8 @@
 package com.diego.almacen.entities;
 
+import com.diego.almacen.dto.ventas.DetalleVentaResponse;
 import com.diego.almacen.exceptions.DatoInvalidoException;
+import com.diego.almacen.utils.ValoresNumericosUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,4 +53,19 @@ public class DetalleVenta {
 
         this.venta = venta;
     }
+
+    public static DetalleVenta crearVenta(Producto producto, Integer cantidadProducto) {
+        if (producto == null)
+            throw new DatoInvalidoException("La productos es requerida");
+
+        ValoresNumericosUtils.validarNumeroRequerido(cantidadProducto, "La cantidad del producto es requerida");
+        ValoresNumericosUtils.validarEnteroPositivo(cantidadProducto, "La cantidad del producto debe ser positiva");
+
+        return DetalleVenta.builder()
+                .producto(producto)
+                .cantidadProducto(cantidadProducto)
+                .precioProducto(producto.getPrecio())
+                .build();
+    }
+
 }

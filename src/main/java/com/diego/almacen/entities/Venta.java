@@ -51,6 +51,11 @@ public class Venta {
             throw new DatoInvalidoException(
                     "El detalle de la venta es requerido");
 
+        if (this.detalleVentas.contains(detalleVenta))
+            throw new ConflictoException("El detalle de esta venta ya esta registrado");
+
+        detalleVenta.getProducto().descontarCantidad(detalleVenta.getCantidadProducto());
+
         this.detalleVentas.add(detalleVenta);
         detalleVenta.asignarVenta(this);
     }
@@ -62,5 +67,13 @@ public class Venta {
                     "La venta ya está cancelada");
 
         this.estadoVenta = EstadoVenta.CANCELADA;
+    }
+
+    public static Venta crearVenta(Sucursal sucursal) {
+        return Venta.builder()
+                .estadoVenta(EstadoVenta.REGISTRADA)
+                .fecha(LocalDate.now())
+                .sucursal(sucursal)
+                .build();
     }
 }
