@@ -56,7 +56,7 @@ public class DetalleVenta {
 
     public static DetalleVenta crearVenta(Producto producto, Integer cantidadProducto) {
         if (producto == null)
-            throw new DatoInvalidoException("La productos es requerida");
+            throw new DatoInvalidoException("El producto es requerido");
 
         ValoresNumericosUtils.validarNumeroRequerido(cantidadProducto, "La cantidad del producto es requerida");
         ValoresNumericosUtils.validarEnteroPositivo(cantidadProducto, "La cantidad del producto debe ser positiva");
