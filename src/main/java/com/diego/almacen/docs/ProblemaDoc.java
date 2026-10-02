@@ -6,7 +6,6 @@ import java.util.List;
 
 @Schema(name = "Problema", description = "Formato de error de la API (RFC 9457)")
 public record ProblemaDoc(
-
         @Schema(example = "about:blank")
         String type,
 
@@ -25,4 +24,5 @@ public record ProblemaDoc(
         @Schema(description = "Solo aparece en errores de validación",
                 example = "[\"nombre: El nombre es requerido\"]")
         List<String> errores
-) {}
+) {
+}

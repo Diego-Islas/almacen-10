@@ -13,80 +13,124 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.List;
 
+// Maneja excepciones de todos los Controllers de la aplicación
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // ---------- Nuestras excepciones ----------
-
-    // 404: el recurso no existe
+    // 404: el recurso solicitado no existe
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ProblemDetail handleNoEncontrado(RecursoNoEncontradoException e) {
+
         log.warn("No encontrado: {}", e.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                e.getMessage()
+        );
     }
 
-    // 400: el cliente mandó un dato inválido
+    // 400: el dato enviado no es válido
     @ExceptionHandler(DatoInvalidoException.class)
     public ProblemDetail handleDatoInvalido(DatoInvalidoException e) {
+
         log.warn("Dato inválido: {}", e.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                e.getMessage()
+        );
     }
 
-    // 409: regla de negocio violada (duplicado, etc.)
+    // 409: la operación entra en conflicto con una regla de negocio
     @ExceptionHandler(ConflictoException.class)
     public ProblemDetail handleConflicto(ConflictoException e) {
+
         log.warn("Conflicto: {}", e.getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                e.getMessage()
+        );
     }
 
-    // 409: la base de datos rechazó el dato (unique, foreign key...)
+    // 409: la base de datos rechazó la operación
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleIntegridad(DataIntegrityViolationException e) {
-        log.warn("Integridad de datos: {}", e.getMostSpecificCause().getMessage());
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
-                "La operación viola una restricción de datos (duplicado o registro en uso).");
+
+        log.warn(
+                "Integridad de datos: {}",
+                e.getMostSpecificCause().getMessage()
+        );
+
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                "La operación viola una restricción de datos " +
+                        "(duplicado o registro en uso)."
+        );
     }
 
-    // ---------- Validaciones (sobrescriben a la clase base) ----------
-
-    // 400: falló @Valid en el @RequestBody
+    // 400: falló @Valid en un @RequestBody
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
+            MethodArgumentNotValidException e,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-        List<String> errores = e.getBindingResult().getFieldErrors().stream()
+        List<String> errores = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .toList();
+
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST, "Los datos enviados no son válidos.");
+                HttpStatus.BAD_REQUEST,
+                "Los datos enviados no son válidos."
+        );
+
+        // Agrega la lista de errores al JSON
         pd.setProperty("errores", errores);
-        return handleExceptionInternal(e, pd, headers, status, request);
+
+        return handleExceptionInternal(
+                e, pd, headers, status, request
+        );
     }
 
-    // 400: falló @Positive, @Min... en un @PathVariable o @RequestParam
+    // 400: falló @Positive, @Min, etc. en parámetros de la URL
     @Override
     protected ResponseEntity<Object> handleHandlerMethodValidationException(
-            HandlerMethodValidationException e, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
+            HandlerMethodValidationException e,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
-        List<String> errores = e.getAllErrors().stream()
+        List<String> errores = e.getAllErrors()
+                .stream()
                 .map(MessageSourceResolvable::getDefaultMessage)
                 .toList();
+
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST, "Uno o más parámetros no son válidos.");
+                HttpStatus.BAD_REQUEST,
+                "Uno o más parámetros no son válidos."
+        );
+
         pd.setProperty("errores", errores);
-        return handleExceptionInternal(e, pd, headers, status, request);
+
+        return handleExceptionInternal(
+                e, pd, headers, status, request
+        );
     }
 
-    // ---------- Red de seguridad ----------
-
-    // 500: cualquier error que no previmos
+    // 500: captura errores que no fueron contemplados
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneral(Exception e) {
+
         log.error("Error interno", e);
-        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Error interno del servidor. Contacte al administrador.");
+
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Error interno del servidor. Contacte al administrador."
+        );
     }
 }

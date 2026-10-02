@@ -13,13 +13,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// Representa la tabla VENTAS
 @Entity
 @Table(name = "VENTAS")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder @Getter
+@Builder
+@Getter
 public class Venta {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_VENTA")
@@ -37,13 +38,18 @@ public class Venta {
     private Sucursal sucursal;
 
     @Builder.Default
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "venta", cascade = CascadeType.ALL)
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            mappedBy = "venta",
+            cascade = CascadeType.ALL
+    )
     private List<DetalleVenta> detalleVentas = new ArrayList<>();
 
     public void agregarDetalle(DetalleVenta detalleVenta) {
 
         if (detalleVenta == null)
-            throw new DatoInvalidoException("El detalle de la venta es requerido");
+            throw new DatoInvalidoException(
+                    "El detalle de la venta es requerido");
 
         this.detalleVentas.add(detalleVenta);
         detalleVenta.asignarVenta(this);
@@ -52,7 +58,8 @@ public class Venta {
     public void cancelar() {
 
         if (this.estadoVenta == EstadoVenta.CANCELADA)
-            throw new ConflictoException("La venta ya está cancelada");
+            throw new ConflictoException(
+                    "La venta ya está cancelada");
 
         this.estadoVenta = EstadoVenta.CANCELADA;
     }

@@ -6,8 +6,7 @@ import com.diego.almacen.dto.ventas.VentaResponse;
 import java.util.List;
 
 public interface VentaService {
-
-    List<VentaResponse> listar();
+    List<VentaResponse> listadoDinamico(String description);
 
     VentaResponse obtenerPorIdActiva(Long id);
 

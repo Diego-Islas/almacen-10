@@ -11,11 +11,13 @@ import java.math.BigDecimal;
 @Schema(description = "Datos necesarios para crear o actualizar un producto")
 public record ProductoRequest(
 
+        // Nombre que recibiremos del cliente
         @Schema(description = "Nombre del producto", example = "Laptop Gamer")
-        @NotBlank(message = "El nombre es requerido")
+        @NotBlank(message = "El nombre es requerido") // No permite null, vacío ni espacios
         @Size(min = 5, max = 30, message = "El nombre debe tener entre 5 y 30 caracteres")
         String nombre,
 
+        // Categoría del producto
         @Schema(
                 description = "Categoría del producto (puede estar en mayúsculas o minúsculas)",
                 example = "Electrónica",
@@ -32,13 +34,16 @@ public record ProductoRequest(
         @NotBlank(message = "La categoría es requerida")
         String categoria,
 
+        // Precio del producto
         @Schema(description = "Precio del producto", example = "15999.99")
         @NotNull(message = "El precio es requerido")
         @Positive(message = "El precio debe ser positivo")
         BigDecimal precio,
 
+        // Cantidad disponible
         @Schema(description = "Cantidad disponible del producto", example = "300")
         @NotNull(message = "La cantidad es requerida")
         @Positive(message = "La cantidad debe ser positiva")
         Integer cantidad
-) {}
+) {
+}

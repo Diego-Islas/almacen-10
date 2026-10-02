@@ -17,51 +17,41 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class DatosIniciales implements CommandLineRunner {
-
     private final ProductoRepository productoRepository;
-
     private final SucursalRepository sucursalRepository;
 
     @Override
     public void run(String... args) throws Exception {
-
         if (productoRepository.count() == 0) {
-
             productoRepository.saveAll(List.of(
-
                     new Producto(null,
                             "Laptop Gamer",
                             Categoria.ELECTRONICA,
                             BigDecimal.valueOf(1500),
                             10),
-
                     new Producto(null,
                             "Mouse Inalámbrico",
                             Categoria.ELECTRONICA,
                             BigDecimal.valueOf(25),
                             50),
-
                     new Producto(null,
                             "Camiseta Deportiva",
                             Categoria.ROPA,
                             BigDecimal.valueOf(20),
                             100)
             ));
+
             log.info("Productos de prueba cargados correctamente");
         }
 
         if (sucursalRepository.count() == 0) {
-
             sucursalRepository.saveAll(List.of(
-
                     new Sucursal(null,
                             "Sucursal Central",
                             "Av. Principal 123"),
-
                     new Sucursal(null,
                             "Sucursal Norte",
                             "Calle Norte 456"),
-
                     new Sucursal(null,
                             "Sucursal Sur",
                             "Calle Sur 789")

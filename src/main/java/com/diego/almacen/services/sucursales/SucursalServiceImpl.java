@@ -19,17 +19,13 @@ import java.util.List;
 @Transactional
 @Slf4j
 public class SucursalServiceImpl implements SucursalService {
-
     private final SucursalRepository sucursalRepository;
-
     private final SucursalMapper sucursalMapper;
 
     @Override
     @Transactional(readOnly = true)
     public List<SucursalResponse> listar() {
-
         log.info("Listando todas las sucursales");
-
         return sucursalRepository.findAll().stream()
                 .map(sucursalMapper::entidadAResponse).toList();
     }
@@ -42,7 +38,6 @@ public class SucursalServiceImpl implements SucursalService {
 
     @Override
     public SucursalResponse registrar(SucursalRequest request) {
-
         log.info("Registrando nueva sucursal...");
 
         validarDatosUnicos(request);
@@ -52,33 +47,27 @@ public class SucursalServiceImpl implements SucursalService {
         sucursalRepository.save(sucursal);
 
         log.info("Nueva sucursal registrada: {}", sucursal.getNombre());
-
         return sucursalMapper.entidadAResponse(sucursal);
     }
 
     @Override
     public SucursalResponse actualizar(SucursalRequest request, Long id) {
-
         Sucursal sucursal = obtenerSucursalOException(id);
 
         validarCambiosUnicos(request, id);
 
         log.info("Actualizando sucursal con id: {}", id);
 
-        sucursal.actualizar(
-                request.nombre(),
-                request.direccion());
+        sucursal.actualizar(request.nombre(), request.direccion());
 
         sucursalRepository.saveAndFlush(sucursal);
 
-        log.info("Sucursal con id {} actualizada correctamente", id);
-
+        log.info("Sucursal actualizada con nombre: {}", sucursal.getNombre());
         return sucursalMapper.entidadAResponse(sucursal);
     }
 
     @Override
     public void eliminar(Long id) {
-
         Sucursal sucursal = obtenerSucursalOException(id);
 
         log.info("Eliminando sucursal con id {}", id);
@@ -99,20 +88,29 @@ public class SucursalServiceImpl implements SucursalService {
     }
 
     private void validarDatosUnicos(SucursalRequest request) {
-
         log.info("Validando nombre único...");
 
-        if (sucursalRepository.existsByNombreIgnoreCase(request.nombre().trim()))
+        if (sucursalRepository.existsByNombreIgnoreCase(
+                request.nombre().trim())) {
+
             throw new ConflictoException(
-                    "Ya existe una sucursal con el nombre de: " + request.nombre());
+                    "Ya existe una sucursal con el nombre de: "
+                            + request.nombre());
+        }
     }
 
-    private void validarCambiosUnicos(SucursalRequest request, Long id) {
+    private void validarCambiosUnicos(
+            SucursalRequest request,
+            Long id) {
 
         log.info("Validando cambio en nombre único...");
 
-        if (sucursalRepository.existsByNombreIgnoreCaseAndIdNot(request.nombre().trim(), id))
+        if (sucursalRepository.existsByNombreIgnoreCaseAndIdNot(
+                request.nombre().trim(), id)) {
+
             throw new ConflictoException(
-                    "Ya existe una sucursal con el nombre de: " + request.nombre());
+                    "Ya existe una sucursal con el nombre de: "
+                            + request.nombre());
+        }
     }
 }

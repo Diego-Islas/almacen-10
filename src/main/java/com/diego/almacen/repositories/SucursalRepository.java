@@ -4,12 +4,14 @@ import com.diego.almacen.entities.Sucursal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+// Permite acceder a la tabla SUCURSALES
 @Repository
 public interface SucursalRepository extends JpaRepository<Sucursal, Long> {
 
-    // SELECT COUNT(*) FROM SUCURSALES WHERE LOWER(NOMBRE) = LOWER(?);
+    // Verifica si ya existe una sucursal con ese nombre, ignorando mayúsculas/minúsculas
     boolean existsByNombreIgnoreCase(String nombre);
 
-    // SELECT COUNT(*) FROM SUCURSALES WHERE LOWER(NOMBRE) = LOWER(?) AND ID_SUCURSAL <> ?;
+    // Verifica si existe otra sucursal con ese nombre,
+    // excluyendo la sucursal que tiene el ID indicado
     boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
 }

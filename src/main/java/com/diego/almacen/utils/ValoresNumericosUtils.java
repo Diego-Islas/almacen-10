@@ -5,13 +5,17 @@ import com.diego.almacen.exceptions.DatoInvalidoException;
 import java.math.BigDecimal;
 
 public class ValoresNumericosUtils {
+    public static <N extends Number> void validarNumeroRequerido(
+            N numero,
+            String mensaje) {
 
-    public static <N extends Number> void validarNumeroRequerido(N numero, String mensaje) {
         if (numero == null)
             throw new DatoInvalidoException(mensaje);
     }
 
-    public static void validarEnteroPositivo(Integer numero, String mensaje) {
+    public static void validarEnteroPositivo(
+            Integer numero,
+            String mensaje) {
 
         validarNumeroRequerido(numero, mensaje);
 
@@ -19,7 +23,9 @@ public class ValoresNumericosUtils {
             throw new DatoInvalidoException(mensaje);
     }
 
-    public static void validarBigDecimalPositivo(BigDecimal numero, String mensaje) {
+    public static void validarBigDecimalPositivo(
+            BigDecimal numero,
+            String mensaje) {
 
         validarNumeroRequerido(numero, mensaje);
 
