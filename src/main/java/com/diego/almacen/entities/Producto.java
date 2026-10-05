@@ -44,7 +44,7 @@ public class Producto {
     @Column(name = "CANTIDAD", nullable = false)
     private Integer cantidad;
 
-    // Valida los datos antes de crear o actualizar un producto
+    // Válida los datos antes de crear o actualizar un producto
     private static void validarDatos(String nombre, Categoria categoria,
                                      BigDecimal precio, Integer cantidad) {
 
